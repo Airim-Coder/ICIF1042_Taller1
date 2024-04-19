@@ -34,8 +34,8 @@ def ProcesadorEncuesta():
 
     while(True):
         if opcion == "a":
-            #archivo = input("Ingrese el nombre del archivo a procesar: ") #pide el nombre del archivo
-            archivo = "encuesta_habitos.csv"
+            archivo = input("Ingrese el nombre del archivo a procesar: ") #pide el nombre del archivo
+            #archivo = "encuesta_habitos.csv" #Solo para depuracion
             CACHE.append(f"lectura de archivo: {archivo}")
             datos_archivo = LeerEncuesta(archivo)
             print("Archivo importado con exito")
@@ -45,16 +45,16 @@ def ProcesadorEncuesta():
             CalcularEstadisticas(datos_archivo)
             opcion = str(input("Ingrese su opcion: ")) 
         elif opcion == "c":
-            resp = str(input("Indique un Sexo(Femenino/Masculino): "))
-            CACHE.append("Estadistica filtrada por Sexo ({resp}):")
-            filtro_sexo=EstadisticaSexoxFiltro(datos_archivo,resp)
-            print(list(filtro_sexo.val))
+            #resp = str(input("Indique un Sexo(Femenino/Masculino): "))
+            #CACHE.append("Estadistica filtrada por Sexo ({resp}):")
+            #filtro_sexo=EstadisticaSexoxFiltro(datos_archivo,resp)
+            print("No implementado aun")
             opcion = str(input("Ingrese su opcion: "))
         elif opcion == "d":
-            resp1 = int(input("Indique desde que edad: "))
-            resp2 = int(input("hasta que edad: "))
-
-            CACHE.append("Estadistica filtrada por Rango de Edad ({resp1}-{resp2}):")
+            #resp1 = int(input("Indique desde que edad: "))
+            #resp2 = int(input("hasta que edad: "))
+            #CACHE.append("Estadistica filtrada por Rango de Edad ({resp1}-{resp2}):")
+            print("No implementado aun")
             opcion = str(input("Ingrese su opcion: "))
         elif opcion == "e":
             GuardarEnArchivo()
@@ -119,13 +119,15 @@ def CalculoFrecuencia(archivo,columna):#funcion para calcular frecuencia
     else:
         print(f"No se reconocio variable Cualitativa")
     return contador
+
+''' NO FUNCIONA
 def EstadisticaSexoxFiltro(archivo, valor):#funcion para obtener la estadistica de sexo por filtro
     filtered = {'units': []}
     if valor in archivo['Sexo']:
         filtered['units'] = [elem for elem in data['units'] if elem['age'] == age]
     return filtered
      #CalcularEstadisticas(filtro)
-
+'''
 #endregion
 
 
@@ -161,6 +163,7 @@ def CalcularEstadisticas(datos_archivo):
     estadistica.append(f"Moda para edad: {moda_edad}")
 
     mediana_edad = CalcularMediana(edades)
+    estadistica.append(f"Mediana para edad: {mediana_edad}")
     
     moda_sexo = CalcularModa(sexo)
     estadistica.append(f"Moda para sexo: {moda_sexo}")
@@ -174,7 +177,7 @@ def CalcularEstadisticas(datos_archivo):
     estadistica.append(f"Moda para respuesta: {moda_respuesta}")
     frecuencia_respuesta = CalculoFrecuencia(datos_archivo,"Respuesta")
     estadistica.append(f"Frecuencia:")
-    for key, value in respuesta.items():
+    for key, value in frecuencia_respuesta.items():
         estadistica.append(f"{key}: {value}")
 
     CACHE.append(estadistica)#Agregar a la cache
@@ -211,9 +214,8 @@ def GuardarEnArchivo():
                         f.write(str(i) + "\n")
     print("Archivo generado con exito")
 
-#Programa Principal
 
-def main():
+def main():#Solo para depuracion
     ProcesadorEncuesta()
 
 if __name__ == "__main__":
