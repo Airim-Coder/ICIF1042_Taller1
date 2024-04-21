@@ -18,6 +18,7 @@
 #   e. Guardar resultados en un archivo (todos aquellos generados)
 #   f. Salir
 import csv, os
+import pandas as pd
 
 CACHE=[]
 def ProcesadorEncuesta(): 
@@ -34,8 +35,8 @@ def ProcesadorEncuesta():
 
     while(True):
         if opcion == "a":
-            archivo = input("Ingrese el nombre del archivo a procesar: ") #pide el nombre del archivo
-            #archivo = "encuesta_habitos.csv" #Solo para depuracion
+            #archivo = input("Ingrese el nombre del archivo a procesar: ") #pide el nombre del archivo
+            archivo = "encuesta_habitos.csv" #Solo para depuracion
             CACHE.append(f"lectura de archivo: {archivo}")
             datos_archivo = LeerEncuesta(archivo)
             print("Archivo importado con exito")
@@ -45,15 +46,28 @@ def ProcesadorEncuesta():
             CalcularEstadisticas(datos_archivo)
             opcion = str(input("Ingrese su opcion: ")) 
         elif opcion == "c":
-            #resp = str(input("Indique un Sexo(Femenino/Masculino): "))
-            #CACHE.append("Estadistica filtrada por Sexo ({resp}):")
-            #filtro_sexo=EstadisticaSexoxFiltro(datos_archivo,resp)
-            print("No implementado aun")
+            resp = int(input("Por cual valor le gustaria filtrar?"
+                             +"\n1. Femenino"
+                             +"\n2. Masculino"
+                             +"\nIndique un nro: "))
+            #region validacion
+            if(resp==1):
+                resp = "Femenino"
+            elif(resp==2):
+                resp = "Masculino"
+            else:
+                print("El valor indicado no se encuentra entre las opciones")
+            #endregion
+            CACHE.append(f"\nIEstadistica filtrada por Sexo ({resp}):")
+            filtro_sexo=FiltrarArchivo(datos_archivo,'Sexo',resp,'')
+            CalcularEstadisticas(filtro_sexo)
             opcion = str(input("Ingrese su opcion: "))
         elif opcion == "d":
-            #resp1 = int(input("Indique desde que edad: "))
-            #resp2 = int(input("hasta que edad: "))
-            #CACHE.append("Estadistica filtrada por Rango de Edad ({resp1}-{resp2}):")
+            resp1 = int(input("Indique desde que edad: "))
+            resp2 = int(input("hasta que edad: "))
+            filtro_edad=FiltrarArchivo(datos_archivo,'Edad',resp1,resp2)
+            CalcularEstadisticas(filtro_edad)
+            CACHE.append("Estadistica filtrada por Rango de Edad ({resp1}-{resp2}):")
             print("No implementado aun")
             opcion = str(input("Ingrese su opcion: "))
         elif opcion == "e":
@@ -75,7 +89,7 @@ def int_list_format(lista):
 def CalcularMedia(lista):#funcion para calcular media
     lista_int = int_list_format(lista)
     suma = sum(lista_int)
-    media = suma/len(lista_int)
+    media = round(suma/len(lista_int),2)
     return media
 def CalcularModa(lista):#funcion para calcular moda
     contador = {}
@@ -94,7 +108,15 @@ def CalcularMediana(lista):#funcion para calcular mediana
         mediana = sorted(lista_int)[mitad_indice]
     return mediana
 def CalculoFrecuencia(archivo,columna):#funcion para calcular frecuencia
-    datos=archivo[columna]
+    #region validaciones
+    for data in archivo.values():
+        if isinstance(data, list):
+            datos = archivo[columna]
+            break
+        elif isinstance(data, dict):
+            datos = list(archivo[columna].values()) #obtiene las edades
+            break
+    #endregions
     contador={}
     if columna == "Respuesta":
         contador = {"Sí": 0, "No": 0, "Tal vez": 0}
@@ -119,15 +141,15 @@ def CalculoFrecuencia(archivo,columna):#funcion para calcular frecuencia
     else:
         print(f"No se reconocio variable Cualitativa")
     return contador
+def FiltrarArchivo(archivo, columna,obj1,obj2):#funcion para obtener la estadistica de sexo por filtro
+    df = pd.DataFrame(archivo)
+    if columna == 'Sexo':
+        filtro = df[df[columna] == obj1]
+        return filtro.to_dict()
+    elif columna == 'Edad':
+        filtro = df[(df[columna] >= obj1) & (df[columna] <= obj2)]
+        return filtro.to_dict()
 
-''' NO FUNCIONA
-def EstadisticaSexoxFiltro(archivo, valor):#funcion para obtener la estadistica de sexo por filtro
-    filtered = {'units': []}
-    if valor in archivo['Sexo']:
-        filtered['units'] = [elem for elem in data['units'] if elem['age'] == age]
-    return filtered
-     #CalcularEstadisticas(filtro)
-'''
 #endregion
 
 
@@ -149,10 +171,21 @@ def LeerEncuesta(archivo): #funcion para leer el archivo
         print(f"Error: Archivo '{archivo}' no encontrado.")
 
 def CalcularEstadisticas(datos_archivo):
-    edades = datos_archivo["Edad"] #obtiene las edades
-    sexo = datos_archivo["Sexo"] #obtiene los sexos
-    respuesta = datos_archivo["Respuesta"] #obtiene las respuestas
+    #region validaciones
+    for data in datos_archivo.values():
+        if isinstance(data, list):
+            edades = datos_archivo["Edad"] #obtiene las edades
+            sexo = datos_archivo["Sexo"] #obtiene los sexos
+            respuesta = datos_archivo["Respuesta"] #obtiene las respuestas
+            break
+        elif isinstance(data, dict):
+            edades = list(datos_archivo["Edad"].values()) #obtiene las edades
+            sexo = list(datos_archivo["Sexo"].values()) #obtiene los sexos
+            respuesta = list(datos_archivo["Respuesta"].values()) #obtiene las respuestas
+            break
+    #endregion
 
+    
     estadistica=[]
 
 
@@ -169,14 +202,14 @@ def CalcularEstadisticas(datos_archivo):
     estadistica.append(f"Moda para sexo: {moda_sexo}")
 
     frecuencia_sexo = CalculoFrecuencia(datos_archivo,"Sexo")
-    estadistica.append(f"Frecuencia:")
+    estadistica.append(f"\nIFrecuencia:")
     for key, value in frecuencia_sexo.items():
         estadistica.append(f"{key}: {value}")
 
     moda_respuesta = CalcularModa(respuesta)
     estadistica.append(f"Moda para respuesta: {moda_respuesta}")
     frecuencia_respuesta = CalculoFrecuencia(datos_archivo,"Respuesta")
-    estadistica.append(f"Frecuencia:")
+    estadistica.append(f"\nIFrecuencia:")
     for key, value in frecuencia_respuesta.items():
         estadistica.append(f"{key}: {value}")
 
@@ -213,7 +246,6 @@ def GuardarEnArchivo():
                     for i in fila:
                         f.write(str(i) + "\n")
     print("Archivo generado con exito")
-
 
 def main():#Solo para depuracion
     ProcesadorEncuesta()

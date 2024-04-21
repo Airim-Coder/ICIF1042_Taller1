@@ -51,7 +51,7 @@ def Generador_Encuesta():
             archivo_csv.close() # Cierra el archivo CSV
             break   # Cierra el programa
             
-def main():
+def main(): #Solo para depuracion
     Generador_Encuesta()
 
 if __name__ == "__main__":

@@ -1,13 +1,27 @@
 lectura de archivo: encuesta_habitos.csv
-Estadistica General del Archivo:
-Media para edad: 31.27
-Moda para edad: 39
+Estadistica filtrada por Sexo ({resp}):
+Media para edad: 31.97
+Moda para edad: 30
+Mediana para edad: 31.0
 Moda para sexo: Masculino
 Frecuencia:
-Masculino: 58
-Femenino: 42
-Moda para respuesta: Sí
+Masculino: 30
+Femenino: 0
+Moda para respuesta: Tal vez
 Frecuencia:
-Sí: 37
-No: 29
-Tal vez: 34
+Sí: 8
+No: 8
+Tal vez: 14
+Estadistica filtrada por Sexo ({resp}):
+Media para edad: 31.75
+Moda para edad: 35
+Mediana para edad: 30.5
+Moda para sexo: Femenino
+Frecuencia:
+Masculino: 0
+Femenino: 40
+Moda para respuesta: No
+Frecuencia:
+Sí: 11
+No: 17
+Tal vez: 12
