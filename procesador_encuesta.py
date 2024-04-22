@@ -92,19 +92,20 @@ def ProcesadorEncuesta():
                 elif resp2<19:
                     contador += 1
                     print("El valor minimo no puede ser menor a 19")
-                elif resp1>45:
+                elif resp1>44:
                     contador += 1
                     print("El valor maximo no puede ser mayor a 45")
-                elif resp2>46:
+                elif resp2>45:
                     contador += 1
                     print("El valor maximo no puede ser mayor a 46")
                 else:
                     break
             #endregion
+            CACHE.append("ESTADISTICAS GENERALES FILTRADO POR EDADES:"+str(resp1)+"-"+str(resp2))
             filtro_edad=FileFilter(datos_archivo,'Edad',resp1,resp2)
             estadistica = CalculosEstadisticos(filtro_edad)
             PrintDatos(estadistica)
-            CACHE.append("ESTADISTICAS GENERALES FILTRADO POR EDADES:"+str(resp1)+"-"+str(resp2))
+            
             opcion = str(input("Ingrese su opcion: "))
             
         elif opcion == "e":
@@ -210,7 +211,6 @@ def ListParseToInt(lista): #convierte una lista de strings a enteros
         print("No hay enteros para convertir")
 def FileFilter(archivo, columna, filtro1, filtro2): #filtra los datos de un archivo csv por columna segun los valores entregados
     df = pd.DataFrame(archivo)
-    print(df.head)
     try:
         if columna == "Sexo":
             filtro = df[df[columna]==filtro1]
