@@ -25,6 +25,7 @@
 
 import csv, os
 import pandas as pd
+import numpy as np
 
 CACHE=[] #almacenar datos procesados en memoria temporal
 def ProcesadorEncuesta(): 
@@ -70,7 +71,7 @@ def ProcesadorEncuesta():
                     print("El valor indicado no se encuentra entre las opciones")
                     resp = int(input("Ingrese su opcion: "))
             #endregion
-            CACHE.append("\nESTADISTICAS GENERALES FILTRADO POR "+ resp)
+            CACHE.append("\nESTADISTICAS GENERALES FILTRADO POR "+ str(resp))
             filtro_sexo=FileFilter(datos_archivo,'Sexo',resp,'')
             estadistica = CalculosEstadisticos(filtro_sexo)
             PrintDatos(estadistica)
@@ -79,10 +80,31 @@ def ProcesadorEncuesta():
         elif opcion == "d":
             resp1 = int(input("Indique desde que edad: "))
             resp2 = int(input("hasta que edad: "))
+            #region validacion
+            contador = 0
+            while(contador<3):
+                if resp1>resp2:
+                    contador += 1
+                    print("El valor minimo no puede ser mayor al maximo")
+                elif resp1<18:
+                    contador += 1
+                    print("El valor minimo no puede ser menor a 18")
+                elif resp2<19:
+                    contador += 1
+                    print("El valor minimo no puede ser menor a 19")
+                elif resp1>45:
+                    contador += 1
+                    print("El valor maximo no puede ser mayor a 45")
+                elif resp2>46:
+                    contador += 1
+                    print("El valor maximo no puede ser mayor a 46")
+                else:
+                    break
+            #endregion
             filtro_edad=FileFilter(datos_archivo,'Edad',resp1,resp2)
             estadistica = CalculosEstadisticos(filtro_edad)
             PrintDatos(estadistica)
-            CACHE.append("ESTADISTICAS GENERALES FILTRADO POR EDADES:"+resp1+"-"+resp2)
+            CACHE.append("ESTADISTICAS GENERALES FILTRADO POR EDADES:"+str(resp1)+"-"+str(resp2))
             opcion = str(input("Ingrese su opcion: "))
             
         elif opcion == "e":
@@ -113,7 +135,7 @@ def LeerEncuesta(archivo):  #funcion para leer el archivo csv
 
     except FileNotFoundError: #control de error si el archivo no existe
         print(f"Error: Archivo '{archivo}' no encontrado.")
-def CalculosEstadisticos(archivo): #funcion para calcular los estadisticos
+def CalculosEstadisticos(archivo): #funcion para calcular los estadisticos con archivo entregado
     try:
         estadistica=[]
     #region validaciones
@@ -162,7 +184,7 @@ def CalculosEstadisticos(archivo): #funcion para calcular los estadisticos
         return estadistica
     except:
         print("No se pudo realizar los calculos")
-def GuardarEnArchivo(): #funcion para guardar datos procesados en un txt
+def GuardarEnArchivo(): #funcion para guardar datos procesados y almacenados en CACHE en un txt
     try:
         if os.path.exists("Calculado.txt"):# Elimina archivo CSV si existe en el directorio
                 os.remove("Calculado.txt")
@@ -188,14 +210,16 @@ def ListParseToInt(lista): #convierte una lista de strings a enteros
         print("No hay enteros para convertir")
 def FileFilter(archivo, columna, filtro1, filtro2): #filtra los datos de un archivo csv por columna segun los valores entregados
     df = pd.DataFrame(archivo)
+    print(df.head)
     try:
         if columna == "Sexo":
             filtro = df[df[columna]==filtro1]
         elif columna == "Edad":
-            filtro = df[(df[columna]>=int(filtro1)) & (df[df[columna]<=int(filtro2)])]
+            df['Edad'] = df['Edad'].astype(int)
+            filtro = df.query('@filtro1 <= Edad <= @filtro2')
         return filtro.to_dict()
-    except:
-        print("Algo salio mal")
+    except Exception as e:
+        print("Algo salio mal:"+str(e))
 def DictParseToList(archivo,columna): #convierte un diccionario a una lista
     try:
         for data in archivo.values():
